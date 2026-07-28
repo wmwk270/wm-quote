@@ -1,0 +1,10 @@
+{
+  "name": "wm-quote",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Weed Man sales quote calculator",
+  "scripts": {
+    "test": "node --test",
+    "release": "node scripts/set-release.js"
+  }
+}
