@@ -1,0 +1,14 @@
+{
+  "year": 2027,
+  "updated": "January 15, 2027",
+  "files": {
+    "regular": "F1 Schedule.csv",
+    "grub": "PGC Schedule.csv",
+    "os": "OS Schedule.csv"
+  },
+  "perThousand": {
+    "regular": 5.5,
+    "grub": 10.5,
+    "aeration": 26
+  }
+}

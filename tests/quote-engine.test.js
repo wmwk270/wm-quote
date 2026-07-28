@@ -14,7 +14,7 @@ function quote(overrides = {}) {
     area: "Entire Lot",
     payment: "autopay_visit",
     promotion: "NONE",
-    date: "2026-07-28",
+    date: `${pricing.year}-07-28`,
     ...overrides,
   });
 }
@@ -27,76 +27,143 @@ test("blank and zero square footage are invalid", () => {
 
 test("8,100 square feet uses the correct price tier", () => {
   const rates = engine.getRates(8100);
-  assert.equal(rates.regularCents, 7610);
-  assert.equal(rates.grubCents, 14190);
-  assert.equal(rates.aerationCents, 18155);
-  assert.equal(rates.overseedingCents, 18155);
+  const tier = pricing.rates.find((row) => 8100 <= row[0]);
+
+  assert.equal(rates.regularCents, engine.toCents(tier[1]));
+  assert.equal(rates.grubCents, engine.toCents(tier[2]));
+  assert.equal(rates.aerationCents, engine.toCents(tier[3]));
+  assert.equal(rates.overseedingCents, engine.toCents(tier[3]));
+
+  if (pricing.year === 2026) {
+    assert.deepEqual(
+      [
+        rates.regularCents,
+        rates.grubCents,
+        rates.aerationCents,
+        rates.overseedingCents,
+      ],
+      [7610, 14190, 18155, 18155],
+    );
+  }
 });
 
 test("aeration and overseeding are separate charges", () => {
   const enhanced = quote({ program: "Enh" });
-  assert.equal(enhanced.subtotalCents, 81970);
+  const expectedSubtotal =
+    enhanced.rates.regularCents * enhanced.applications +
+    enhanced.rates.aerationCents +
+    enhanced.rates.overseedingCents;
+  assert.equal(enhanced.subtotalCents, expectedSubtotal);
   assert.equal(
     enhanced.lines.find((line) => line.code === "aeration").amountCents,
-    18155,
+    enhanced.rates.aerationCents,
   );
   assert.equal(
     enhanced.lines.find((line) => line.code === "overseeding").amountCents,
-    18155,
+    enhanced.rates.overseedingCents,
   );
 });
 
 test("all six program totals use the correct included services", () => {
-  const expected = {
-    Ess: 45660,
-    Enh: 81970,
-    Elite: 96160,
-    AG: 59850,
-    B: 63815,
-    C: 78005,
-  };
+  const rates = engine.getRates(8100);
 
-  for (const [program, totalCents] of Object.entries(expected)) {
-    assert.equal(quote({ program }).totalCents, totalCents, program);
+  for (const program of pricing.programs) {
+    const expectedTotal =
+      rates.regularCents * 6 +
+      rates.aerationCents * program.aeration +
+      rates.overseedingCents * program.overseeding +
+      rates.grubCents * program.grub;
+    assert.equal(
+      quote({ program: program.key }).totalCents,
+      expectedTotal,
+      program.key,
+    );
   }
 });
 
 test("large lawn formulas return the confirmed 156,000 sq ft prices", () => {
-  const rates = engine.getRates(156000);
-  assert.equal(rates.regularCents, 87581);
-  assert.equal(rates.grubCents, 139026);
-  assert.equal(rates.aerationCents, 336258);
-  assert.equal(rates.overseedingCents, 336258);
+  const squareFeet = 156000;
+  const rates = engine.getRates(squareFeet);
+  const thousandsOver =
+    (squareFeet - pricing.extension.threshold) / 1000;
+  const expectedRegular = engine.toCents(
+    pricing.extension.regular.base +
+      thousandsOver * pricing.extension.regular.perThousand,
+  );
+  const expectedGrub = engine.toCents(
+    pricing.extension.grub.base +
+      thousandsOver * pricing.extension.grub.perThousand,
+  );
+  const expectedAeration = engine.toCents(
+    pricing.extension.aerationOrOverseeding.base +
+      thousandsOver *
+        pricing.extension.aerationOrOverseeding.perThousand,
+  );
+
+  assert.equal(rates.regularCents, expectedRegular);
+  assert.equal(rates.grubCents, expectedGrub);
+  assert.equal(rates.aerationCents, expectedAeration);
+  assert.equal(rates.overseedingCents, expectedAeration);
   assert.equal(rates.extrapolated, true);
+
+  if (pricing.year === 2026) {
+    assert.deepEqual(
+      [
+        rates.regularCents,
+        rates.grubCents,
+        rates.aerationCents,
+        rates.overseedingCents,
+      ],
+      [87581, 139026, 336258, 336258],
+    );
+  }
 });
 
 test("early prepay receives 5 percent through January 31", () => {
   const january31 = quote({
     applications: 5,
     payment: "prepay",
-    date: "2026-01-31",
+    date: `${pricing.year}-01-31`,
   });
   assert.equal(january31.prepayStatus, "early_discount");
-  assert.equal(january31.totalCents, 36148);
+  assert.equal(
+    january31.totalCents,
+    Math.round(
+      january31.subtotalCents *
+        (1 - pricing.discounts.prepayPercent / 100),
+    ),
+  );
 });
 
 test("late prepay deducts one regular application at any app count", () => {
   const fiveApps = quote({
     applications: 5,
     payment: "prepay",
-    date: "2026-02-01",
+    date: `${pricing.year}-02-01`,
   });
   const sevenApps = quote({
     applications: 7,
     payment: "prepay",
-    date: "2026-07-28",
+    date: `${pricing.year}-07-28`,
   });
 
   assert.equal(fiveApps.prepayStatus, "free_lime_bonus");
-  assert.equal(fiveApps.prepayDiscountCents, 7610);
-  assert.equal(fiveApps.totalCents, 30440);
-  assert.equal(sevenApps.prepayDiscountCents, 7610);
-  assert.equal(sevenApps.totalCents, 45660);
+  assert.equal(
+    fiveApps.prepayDiscountCents,
+    fiveApps.rates.regularCents,
+  );
+  assert.equal(
+    fiveApps.totalCents,
+    fiveApps.rates.regularCents * 4,
+  );
+  assert.equal(
+    sevenApps.prepayDiscountCents,
+    sevenApps.rates.regularCents,
+  );
+  assert.equal(
+    sevenApps.totalCents,
+    sevenApps.rates.regularCents * 6,
+  );
 });
 
 test("prepay removes other promotions and prevents stacking", () => {
@@ -106,13 +173,27 @@ test("prepay removes other promotions and prevents stacking", () => {
   });
   assert.equal(result.promotion, "NONE");
   assert.equal(result.promotionDiscountCents, 0);
-  assert.equal(result.totalCents, 38050);
+  assert.equal(
+    result.totalCents,
+    result.rates.regularCents * (result.applications - 1),
+  );
 });
 
 test("DH50, WEB50, and military discounts calculate independently", () => {
-  assert.equal(quote({ promotion: "DH50" }).totalCents, 41855);
-  assert.equal(quote({ promotion: "WEB50" }).totalCents, 41855);
-  assert.equal(quote({ promotion: "Military" }).totalCents, 43377);
+  const base = quote();
+  const firstAppTotal = Math.round(
+    base.subtotalCents -
+      base.rates.regularCents *
+        (pricing.discounts.firstAppPercent / 100),
+  );
+  const militaryTotal = Math.round(
+    base.subtotalCents *
+      (1 - pricing.discounts.militaryPercent / 100),
+  );
+
+  assert.equal(quote({ promotion: "DH50" }).totalCents, firstAppTotal);
+  assert.equal(quote({ promotion: "WEB50" }).totalCents, firstAppTotal);
+  assert.equal(quote({ promotion: "Military" }).totalCents, militaryTotal);
 });
 
 test("monthly schedule starts next month after the draft day and sums exactly", () => {
@@ -155,8 +236,13 @@ test("customer copy is a concise text message with quote details only", () => {
     payment: "monthly_installment",
   });
   const message = engine.createCustomerText(result, 15);
-  assert.match(message, /^2026 Elite program for the entire lot:/);
-  assert.match(message, /Season total: \$961\.60\./);
+  assert.match(
+    message,
+    new RegExp(`^${pricing.year} Elite program for the entire lot:`),
+  );
+  assert.ok(
+    message.includes(`Season total: ${engine.formatMoney(result.totalCents)}.`),
+  );
   assert.match(message, /Monthly autopay:/);
   assert.doesNotMatch(message, /checking in|following up|https?:|click here/i);
   assert.doesNotMatch(message, /\?$/);
@@ -170,5 +256,6 @@ test("release identifiers stay synchronized for update detection", () => {
   const worker = fs.readFileSync(path.join(root, "sw.js"), "utf8");
 
   assert.equal(version.release, pricing.release);
+  assert.equal(pricing.discounts.prepayCutoff, `${pricing.year}-02-01`);
   assert.match(worker, new RegExp(`wm-quote-${pricing.release.replaceAll(".", "\\.")}`));
 });
