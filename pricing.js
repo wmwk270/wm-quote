@@ -15,7 +15,7 @@
     version: "2026 Pricing",
     year: 2026,
     updated: "July 27, 2026",
-    release: "2026.07.28.1",
+    release: "2026.07.28.2",
 
     discounts: Object.freeze({
       prepayPercent: 5,

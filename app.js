@@ -46,7 +46,7 @@
     draftDayPanel: document.querySelector("#draft-day-panel"),
     draftDayDown: document.querySelector("#draft-day-down"),
     draftDayUp: document.querySelector("#draft-day-up"),
-    draftDayOutput: document.querySelector("#draft-day-output"),
+    draftDayInput: document.querySelector("#draft-day-input"),
     areaOptions: document.querySelector("#area-options"),
     promotionFieldset: document.querySelector("#promotion-fieldset"),
     promotionOptions: document.querySelector("#promotion-options"),
@@ -175,9 +175,8 @@
     elements.applicationsDown.disabled = state.applications <= 1;
     elements.applicationsUp.disabled = state.applications >= 7;
 
-    elements.draftDayOutput.innerHTML =
-      `<strong>${engine.ordinal(state.draftDay)}</strong>` +
-      "<span>of each month</span>";
+    elements.draftDayInput.value = String(state.draftDay);
+    elements.draftDayInput.setAttribute("aria-invalid", "false");
     elements.draftDayDown.disabled = state.draftDay <= 1;
     elements.draftDayUp.disabled = state.draftDay >= 28;
     elements.draftDayPanel.hidden =
@@ -737,6 +736,24 @@
   });
   elements.draftDayUp.addEventListener("click", () => {
     setState({ draftDay: Math.min(28, state.draftDay + 1) });
+  });
+  elements.draftDayInput.addEventListener("input", (event) => {
+    const value = Number(event.target.value);
+    const valid =
+      Number.isInteger(value) && value >= 1 && value <= 28;
+    event.target.setAttribute("aria-invalid", String(!valid));
+    if (valid) {
+      setState({ draftDay: value });
+    }
+  });
+  elements.draftDayInput.addEventListener("change", (event) => {
+    const value = Number.parseInt(event.target.value, 10);
+    if (!Number.isFinite(value)) {
+      event.target.value = String(state.draftDay);
+      event.target.setAttribute("aria-invalid", "false");
+      return;
+    }
+    setState({ draftDay: Math.min(28, Math.max(1, value)) });
   });
 
   elements.programList.addEventListener("click", (event) => {

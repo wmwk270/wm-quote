@@ -207,7 +207,7 @@
 
             <fieldset class="draft-day-panel" id="draft-day-panel" hidden>
               <legend>Monthly draft day</legend>
-              <div class="counter counter-compact">
+              <div class="counter counter-compact draft-day-counter">
                 <button
                   class="counter-button"
                   id="draft-day-down"
@@ -216,10 +216,22 @@
                 >
                   <span aria-hidden="true">−</span>
                 </button>
-                <output id="draft-day-output" for="draft-day-down draft-day-up">
-                  <strong>15th</strong>
-                  <span>of each month</span>
-                </output>
+                <div class="draft-day-value">
+                  <label class="sr-only" for="draft-day-input">
+                    Monthly draft day
+                  </label>
+                  <input
+                    id="draft-day-input"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="28"
+                    step="1"
+                    value="15"
+                    aria-describedby="draft-day-help"
+                  >
+                  <span>day of month</span>
+                </div>
                 <button
                   class="counter-button"
                   id="draft-day-up"
@@ -229,6 +241,9 @@
                   <span aria-hidden="true">+</span>
                 </button>
               </div>
+              <p class="field-help" id="draft-day-help">
+                Type a day from 1 through 28 or use the buttons.
+              </p>
             </fieldset>
           </section>
 

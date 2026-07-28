@@ -688,6 +688,57 @@ summary:focus-visible {
   width: min(100%, 330px);
 }
 
+.draft-day-counter {
+  width: min(100%, 390px);
+  min-height: 64px;
+  grid-template-columns: 60px minmax(150px, 1fr) 60px;
+}
+
+.draft-day-counter .counter-button {
+  min-width: 60px;
+  font-size: 1.65rem;
+}
+
+.draft-day-value {
+  display: flex;
+  min-width: 0;
+  padding: 7px 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.draft-day-value input {
+  width: 68px;
+  min-height: 46px;
+  padding: 0 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  outline: 0;
+  background: var(--white);
+  color: var(--charcoal);
+  font-size: 1.2rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.draft-day-value input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px rgb(3 102 59 / 10%);
+}
+
+.draft-day-value input[aria-invalid="true"] {
+  border-color: var(--green-dark);
+  background: var(--green-pale);
+}
+
+.draft-day-value span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
 .prepay-promotion-note {
   margin: 18px 0 0;
   padding: 12px 14px;
@@ -1410,6 +1461,29 @@ summary:focus-visible {
 
   .program-table {
     min-width: 510px;
+  }
+
+  .draft-day-counter {
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
+  }
+
+  .draft-day-counter .counter-button {
+    min-width: 56px;
+  }
+
+  .draft-day-value {
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .draft-day-value input {
+    width: 58px;
+  }
+
+  .draft-day-value span {
+    font-size: 0.68rem;
+    line-height: 1.15;
+    white-space: normal;
   }
 
   .secondary-actions {
