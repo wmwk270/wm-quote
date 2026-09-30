@@ -29,7 +29,9 @@ The safest yearly update is to import the three schedules exported by the
 pricing system:
 
 1. Rename the exports `F1 Schedule.csv`, `PGC Schedule.csv`, and
-   `OS Schedule.csv`, then place them in the repository root.
+   `OS Schedule.csv`, then place them in the repository root. The FAE
+   schedule has the same prices as OS, so an FAE export can be used as the OS
+   file (in the config's `os` entry, or with `--os`).
 2. Copy `pricing-update.example.json` to `pricing-update.json`.
 3. In `pricing-update.json`, enter the new pricing year, update date, and the
    three per-1,000-square-foot amounts used above 99,999 sq ft.
