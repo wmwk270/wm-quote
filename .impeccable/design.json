@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-30T00:00:00Z",
+  "title": "Design System: Weed Man Sales Quote",
+  "extensions": {
+    "colorMeta": {
+      "weed-man-green": {
+        "role": "primary",
+        "displayName": "Weed Man Green",
+        "canonical": "#03663b",
+        "tonalRamp": [
+          "#01261a",
+          "#023d25",
+          "#03512f",
+          "#03663b",
+          "#2f8a5c",
+          "#5eab83",
+          "#9ccbb0",
+          "#e6f0e9"
+        ]
+      },
+      "savings-lime": {
+        "role": "secondary",
+        "displayName": "Savings Lime",
+        "canonical": "#dff58f",
+        "tonalRamp": [
+          "#2e3a0b",
+          "#4a5e12",
+          "#6a861c",
+          "#8fb02a",
+          "#b3d24a",
+          "#cbe86d",
+          "#dff58f",
+          "#f3fcd6"
+        ]
+      },
+      "soft-paper": {
+        "role": "neutral",
+        "displayName": "Soft Paper",
+        "canonical": "#f3f5f2"
+      },
+      "forest-ink": {
+        "role": "neutral",
+        "displayName": "Forest Ink",
+        "canonical": "#16211b"
+      },
+      "sage-muted": {
+        "role": "neutral",
+        "displayName": "Sage",
+        "canonical": "#56655c"
+      },
+      "control-edge": {
+        "role": "neutral",
+        "displayName": "Control Edge",
+        "canonical": "#86958b"
+      },
+      "stamp-red": {
+        "role": "error",
+        "displayName": "Stamp Red",
+        "canonical": "#c42b1c"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The Amount Due total only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The lawn-size entry."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Program prices and the panel's program name."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, schedule, notes."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Box headings and field labels, sentence case."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "0 12px 32px rgb(14 58 37 / 22%)",
+        "purpose": "Amount Due panel lift (dark mode: rgb(0 0 0 / 50%))."
+      },
+      {
+        "name": "highlight",
+        "value": "0 4px 12px rgb(14 58 37 / 18%)",
+        "purpose": "The sliding program highlight (dark mode: rgb(0 0 0 / 45%))."
+      },
+      {
+        "name": "lift",
+        "value": "0 20px 50px rgb(14 58 37 / 25%)",
+        "purpose": "Dialog and toast overlays."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "All state motion."
+      },
+      {
+        "name": "roll",
+        "value": "560ms, staggered 30ms right to left",
+        "purpose": "Rolling digits on every price change."
+      },
+      {
+        "name": "highlight-slide",
+        "value": "380ms",
+        "purpose": "Program highlight moving between lines."
+      },
+      {
+        "name": "stamp",
+        "value": "320ms from scale 1.6",
+        "purpose": "Void stamp when prepay removes the promotion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "laptop-narrow",
+        "value": "1180px"
+      },
+      {
+        "name": "phone",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid Weed Man green action.",
+      "html": "<button class=\"ds-btn-primary\">Save quote</button>",
+      "css": ".ds-btn-primary { min-height: 44px; padding: 0 18px; border: 0; border-radius: 9px; background: #03663b; color: #fff; font-weight: 600; transition: filter 160ms ease, transform 160ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { filter: brightness(1.08); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid #03663b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Copy Button",
+      "kind": "button",
+      "refersTo": "button-copy",
+      "description": "The Amount Due panel's primary action, white on the green panel.",
+      "html": "<div class=\"ds-panel\"><button class=\"ds-btn-copy\">Copy customer quote</button></div>",
+      "css": ".ds-panel { padding: 16px; border-radius: 16px; background: #03663b; } .ds-btn-copy { width: 100%; min-height: 52px; border: 0; border-radius: 9px; background: #fff; color: #03663b; font-size: 1rem; font-weight: 600; } .ds-btn-copy:hover { background: #e6f0e9; } .ds-btn-copy:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action on a light surface.",
+      "html": "<button class=\"ds-btn-outline\">Cancel</button>",
+      "css": ".ds-btn-outline { min-height: 44px; padding: 0 16px; border: 1px solid #86958b; border-radius: 9px; background: #fff; color: #16211b; font-weight: 600; } .ds-btn-outline:hover { border-color: #03663b; } .ds-btn-outline:focus-visible { outline: 2px solid #03663b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Dropdown",
+      "kind": "input",
+      "refersTo": "select",
+      "description": "Native select for area, promotion, and draft day.",
+      "html": "<select class=\"ds-select\"><option>Entire lot</option><option>Front and sides</option></select>",
+      "css": ".ds-select { width: 220px; height: 48px; padding: 0 38px 0 12px; border: 1px solid #86958b; border-radius: 9px; appearance: none; background: #fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%2356655c' stroke-width='1.7'/%3E%3C/svg%3E\") no-repeat right 14px center / 12px 8px; color: #16211b; font-size: 1rem; } .ds-select:hover { border-color: #03663b; } .ds-select:focus-visible { outline: 2px solid #03663b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Numbered Box",
+      "kind": "card",
+      "refersTo": "box",
+      "description": "Every input lives in a numbered box with the same heading strip.",
+      "html": "<section class=\"ds-box\"><h3 class=\"ds-box-head\"><span class=\"ds-box-no\">3</span>Treatment area</h3><p class=\"ds-box-help\">Notes only, not price</p></section>",
+      "css": ".ds-box { width: 240px; padding: 12px 14px 14px; border: 1px solid #d3dcd5; border-radius: 12px; background: #fff; color: #16211b; } .ds-box-head { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 0.8125rem; font-weight: 600; } .ds-box-no { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: #e6f0e9; color: #03663b; font-size: 0.75rem; font-weight: 700; } .ds-box-help { margin: 0; color: #56655c; font-size: 0.8125rem; }"
+    },
+    {
+      "name": "Program Line",
+      "kind": "custom",
+      "refersTo": "program-line-selected",
+      "description": "Ruled program lines; the selected one sits on the green highlight.",
+      "html": "<ul class=\"ds-programs\"><li><button class=\"ds-line\"><span><b>Essentials</b><small>Base applications only</small></span><span>$418.55</span></button></li><li><button class=\"ds-line is-on\"><span><b>Enhanced</b><small>Aeration and overseeding</small></span><span>$781.65</span></button></li></ul>",
+      "css": ".ds-programs { width: 380px; margin: 0; padding: 0; list-style: none; } .ds-programs li + li { border-top: 1px solid #d3dcd5; } .ds-line { display: flex; width: 100%; min-height: 44px; padding: 7px 12px; align-items: center; justify-content: space-between; border: 0; border-radius: 9px; background: none; color: #16211b; text-align: left; } .ds-line span:first-child { display: grid; } .ds-line small { color: #56655c; font-size: 0.8125rem; } .ds-line span:last-child { font-size: 1.125rem; font-weight: 600; } .ds-line:hover { background: #eef3ef; } .ds-line.is-on { background: #03663b; color: #fff; box-shadow: 0 4px 12px rgb(14 58 37 / 18%); } .ds-line.is-on small { color: #fff; }"
+    },
+    {
+      "name": "Void Stamp",
+      "kind": "custom",
+      "description": "A rule removing an option stamps itself on the affected box.",
+      "html": "<span class=\"ds-stamp\">Removed by prepay</span>",
+      "css": ".ds-stamp { display: inline-block; padding: 4px 10px; border: 2px solid #c42b1c; border-radius: 6px; background: #fff; color: #c42b1c; font-size: 0.875rem; font-weight: 700; transform: rotate(-6deg); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Live Work Order",
+    "overview": "The quote is one numbered service form that fits a laptop screen. Every input lives in a numbered box, the six program prices sit together in one ruled list, and the price lives in the Amount Due panel, the one saturated surface on the page. It is built for a rep on a headset: dense, calm, and instantly readable, with flash reserved for the moment a number changes.\n\nMotion is the personality. Prices roll like an odometer, the selection highlight glides between program lines, and a business rule that removes an option stamps itself onto the box it affects. Everything else stays flat and quiet so the moving number is the thing the eye catches.\n\nLight and dark share one grammar. Dark mode is the same form on a deep forest ground, not an inverted palette.",
+    "keyCharacteristics": [
+      "Seven numbered boxes, each headed by the same number-and-label strip.",
+      "One Weed Man green for selection, focus, and the Amount Due panel.",
+      "One lime, only for money saved.",
+      "A monumental condensed total; nothing else on screen is large.",
+      "The copy action always above the fold on a 1366×650 viewport."
+    ],
+    "rules": [
+      {
+        "name": "The One Green Rule",
+        "body": "Weed Man green marks what is chosen or what matters now: the selection, the focus, the price. It is never decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lime Means Money Rule",
+        "body": "Lime appears only on savings. A discount line is lime; nothing else is.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Monument Rule",
+        "body": "Only the Amount Due total is set at display size. Adding a second large number breaks the page's focus.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Form Rule",
+        "body": "Boxes never cast shadows. Only the price panel, the moving highlight, and overlays leave the page.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the whole quote, including Copy customer quote, visible on a 1366×650 laptop viewport.",
+      "Do number every input box and head it with the same number-and-label strip.",
+      "Do animate numbers when they change, and show a rule's effect where it happens (the void stamp).",
+      "Do keep control borders at 3:1 and text at 4.5:1 in both themes."
+    ],
+    "donts": [
+      "Don't add a second saturated surface; the Amount Due panel is the only one.",
+      "Don't use lime for anything but savings.",
+      "Don't hide a disabled option; void it in place and say why.",
+      "Don't put small labels above headings or use all-caps labels."
+    ]
+  }
+}

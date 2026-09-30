@@ -6,7 +6,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     >
-    <meta name="theme-color" content="#03663b">
+    <meta name="theme-color" content="#03663b" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0c1510" media="(prefers-color-scheme: dark)">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -18,479 +19,308 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="apple-touch-icon" href="./apple-touch-icon.png">
     <link rel="icon" href="./icon-192.png">
+    <link rel="preload" href="./fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./styles.css">
+    <script>
+      try {
+        const theme = localStorage.getItem("wm-quote-theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch (error) {}
+    </script>
     <title>Weed Man Sales Quote</title>
     <script defer src="./pricing.js"></script>
     <script defer src="./quote-engine.js"></script>
     <script defer src="./app.js"></script>
   </head>
   <body>
-    <a class="skip-link" href="#quote-form">Skip to quote options</a>
+    <a class="skip-link" href="#quote-form">Skip to the quote</a>
 
-    <header class="site-header">
-      <div class="header-inner">
-        <div class="brand">
-          <img
-            class="brand-mark"
-            src="./icon-192.png"
-            width="54"
-            height="54"
-            alt=""
-          >
-          <div>
-            <p class="brand-name">Weed Man</p>
-            <h1>Sales Quote</h1>
-          </div>
-        </div>
-        <div class="header-actions">
-          <div class="pricing-version">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span id="pricing-version-text">2026 Pricing • Updated July 27, 2026</span>
-          </div>
-          <button class="text-button" id="reset-button" type="button">
-            Reset quote
-          </button>
-        </div>
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-mark" src="./icon-192.png" width="32" height="32" alt="">
+        <h1><span class="brand-name">Weed Man</span> Sales Quote</h1>
       </div>
-      <p class="pricing-warning" id="pricing-warning" role="status" hidden></p>
+      <div class="topbar-actions">
+        <p class="pricing-version">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="pricing-version-text">2026 Pricing • Updated July 28, 2026</span>
+        </p>
+        <button
+          class="icon-button theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-label="Switch to dark mode"
+        >
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </svg>
+        </button>
+        <button class="ghost-button" id="reset-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" />
+          </svg>
+          New quote
+        </button>
+      </div>
     </header>
 
+    <p class="pricing-warning" id="pricing-warning" role="status" hidden></p>
+
     <div class="update-banner" id="update-banner" role="status" hidden>
-      <div>
-        <strong>New pricing update available.</strong>
-        <span>Refresh to load the latest version.</span>
-      </div>
-      <button class="button button-light button-small" id="refresh-button" type="button">
-        Refresh now
-      </button>
+      <p><strong>New pricing update available.</strong> Refresh to load it.</p>
+      <button class="solid-button" id="refresh-button" type="button">Refresh now</button>
     </div>
 
-    <main class="quote-layout">
-      <section class="controls-column" aria-labelledby="quote-options-heading">
-        <div id="quote-form">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Quote builder</p>
-              <h2 id="quote-options-heading">Quote options</h2>
-            </div>
-            <p>Pricing is based on entered square footage.</p>
+    <main class="workspace">
+      <form class="order" id="quote-form" aria-labelledby="quote-options-heading" novalidate>
+        <h2 class="sr-only" id="quote-options-heading">Quote options</h2>
+
+        <section class="box box-lawn" aria-labelledby="property-heading">
+          <h3 class="box-head" id="property-heading">
+            <span class="box-no" aria-hidden="true">1</span>
+            <label for="square-feet">Lawn size</label>
+          </h3>
+          <div class="lawn-input">
+            <input
+              id="square-feet"
+              name="squareFeet"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              aria-describedby="square-feet-help square-feet-error"
+              placeholder="0"
+            >
+            <span aria-hidden="true">sq ft</span>
           </div>
+          <p class="box-help" id="square-feet-help">Formula pricing above 99,999</p>
+          <p class="box-error" id="square-feet-error" role="alert">
+            Enter the measured square footage.
+          </p>
+        </section>
 
-          <section class="card property-card" aria-labelledby="property-heading">
-            <div class="card-heading">
-              <span class="step-number" aria-hidden="true">1</span>
-              <div>
-                <h3 id="property-heading">Property</h3>
-                <p>Enter the measured lawn size and applications remaining.</p>
-              </div>
-            </div>
-
-            <div class="property-grid">
-              <div class="field">
-                <label for="square-feet">Square footage</label>
-                <div class="input-suffix">
-                  <input
-                    id="square-feet"
-                    name="squareFeet"
-                    type="text"
-                    inputmode="numeric"
-                    autocomplete="off"
-                    aria-describedby="square-feet-help square-feet-error"
-                    placeholder="Enter square footage"
-                  >
-                  <span aria-hidden="true">sq ft</span>
-                </div>
-                <p class="field-help" id="square-feet-help">
-                  Formula pricing applies above 99,999 sq ft.
-                </p>
-                <p class="field-error" id="square-feet-error" role="alert">
-                  Enter a valid square footage to generate pricing.
-                </p>
-              </div>
-
-              <fieldset class="counter-field">
-                <legend>Applications remaining</legend>
-                <div class="counter">
-                  <button
-                    class="counter-button"
-                    id="applications-down"
-                    type="button"
-                    aria-label="Decrease applications remaining"
-                  >
-                    <span aria-hidden="true">−</span>
-                  </button>
-                  <output id="applications-output" for="applications-down applications-up">
-                    <strong>6</strong>
-                    <span>applications</span>
-                  </output>
-                  <button
-                    class="counter-button"
-                    id="applications-up"
-                    type="button"
-                    aria-label="Increase applications remaining"
-                  >
-                    <span aria-hidden="true">+</span>
-                  </button>
-                </div>
-                <p class="field-help">Choose 1 through 7.</p>
-              </fieldset>
-            </div>
-          </section>
-
-          <section class="card program-card" aria-labelledby="program-heading">
-            <div class="card-heading">
-              <span class="step-number" aria-hidden="true">2</span>
-              <div>
-                <h3 id="program-heading">Program</h3>
-                <p>Compare the regular application price and full season total.</p>
-              </div>
-            </div>
-
-            <div class="table-scroll">
-              <table class="program-table">
-                <caption class="sr-only">
-                  Program selection with regular application price and season total
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Program</th>
-                    <th scope="col">Regular App</th>
-                    <th scope="col">Season Total</th>
-                  </tr>
-                </thead>
-                <tbody id="program-list"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="card" aria-labelledby="payment-heading">
-            <div class="card-heading">
-              <span class="step-number" aria-hidden="true">3</span>
-              <div>
-                <h3 id="payment-heading">Payment</h3>
-                <p>Choose one payment arrangement.</p>
-              </div>
-            </div>
-
-            <fieldset>
-              <legend class="sr-only">Payment arrangement</legend>
-              <div class="choice-grid choice-grid-three" id="payment-options">
-                <button
-                  class="choice-button"
-                  type="button"
-                  data-payment="autopay_visit"
-                  aria-pressed="true"
-                >
-                  <strong>Autopay per visit</strong>
-                  <span>Processed after each service</span>
-                </button>
-                <button
-                  class="choice-button"
-                  type="button"
-                  data-payment="monthly_installment"
-                  aria-pressed="false"
-                >
-                  <strong>Monthly autopay</strong>
-                  <span>Exact payments through December</span>
-                </button>
-                <button
-                  class="choice-button"
-                  type="button"
-                  data-payment="prepay"
-                  aria-pressed="false"
-                >
-                  <strong>Prepay</strong>
-                  <span id="prepay-option-hint">Free Lime Prepay Bonus</span>
-                </button>
-              </div>
-            </fieldset>
-
-            <fieldset class="draft-day-panel" id="draft-day-panel" hidden>
-              <legend>Monthly draft day</legend>
-              <div class="counter counter-compact draft-day-counter">
-                <button
-                  class="counter-button"
-                  id="draft-day-down"
-                  type="button"
-                  aria-label="Move monthly draft day earlier"
-                >
-                  <span aria-hidden="true">−</span>
-                </button>
-                <div class="draft-day-value">
-                  <label class="sr-only" for="draft-day-input">
-                    Monthly draft day
-                  </label>
-                  <input
-                    id="draft-day-input"
-                    type="number"
-                    inputmode="numeric"
-                    min="1"
-                    max="28"
-                    step="1"
-                    value="15"
-                    aria-describedby="draft-day-help"
-                  >
-                  <span>day of month</span>
-                </div>
-                <button
-                  class="counter-button"
-                  id="draft-day-up"
-                  type="button"
-                  aria-label="Move monthly draft day later"
-                >
-                  <span aria-hidden="true">+</span>
-                </button>
-              </div>
-              <p class="field-help" id="draft-day-help">
-                Type a day from 1 through 28 or use the buttons.
-              </p>
-            </fieldset>
-          </section>
-
-          <section class="card" aria-labelledby="details-heading">
-            <div class="card-heading">
-              <span class="step-number" aria-hidden="true">4</span>
-              <div>
-                <h3 id="details-heading">Quote details</h3>
-                <p>Treatment area changes the notes only, not the price.</p>
-              </div>
-            </div>
-
-            <fieldset>
-              <legend>Treatment area</legend>
-              <div class="choice-grid choice-grid-three" id="area-options">
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-area="Entire Lot"
-                  aria-pressed="true"
-                >
-                  Entire lot
-                </button>
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-area="Front and Sides"
-                  aria-pressed="false"
-                >
-                  Front and sides
-                </button>
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-area="Backyard Only"
-                  aria-pressed="false"
-                >
-                  Backyard
-                </button>
-              </div>
-            </fieldset>
-
-            <fieldset class="promotion-fieldset" id="promotion-fieldset">
-              <legend>Promotion</legend>
-              <div class="choice-grid choice-grid-four" id="promotion-options">
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-promotion="NONE"
-                  aria-pressed="true"
-                >
-                  None
-                </button>
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-promotion="Military"
-                  aria-pressed="false"
-                >
-                  Military 5%
-                </button>
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-promotion="DH50"
-                  aria-pressed="false"
-                >
-                  DH50
-                </button>
-                <button
-                  class="choice-button choice-button-compact"
-                  type="button"
-                  data-promotion="WEB50"
-                  aria-pressed="false"
-                >
-                  WEB50
-                </button>
-              </div>
-              <p class="field-help">
-                Promotions cannot be combined. DH50 and WEB50 take 50% off
-                the first regular application.
-              </p>
-            </fieldset>
-
-            <p class="prepay-promotion-note" id="prepay-promotion-note" hidden>
-              Other promotions are removed when Prepay is selected.
-            </p>
-          </section>
-        </div>
-
-        <section class="card saved-card" aria-labelledby="saved-heading">
-          <div class="saved-heading-row">
-            <div class="card-heading card-heading-flat">
-              <span class="saved-icon" aria-hidden="true">⌁</span>
-              <div>
-                <h3 id="saved-heading">Saved quotes</h3>
-                <p>Stored only in this browser.</p>
-              </div>
-            </div>
-            <button class="text-button danger-button" id="clear-saved-button" type="button">
-              Clear all
+        <section class="box box-apps" aria-labelledby="apps-heading">
+          <h3 class="box-head" id="apps-heading">
+            <span class="box-no" aria-hidden="true">2</span>
+            Applications left
+          </h3>
+          <div class="stepper">
+            <button class="stepper-button" id="applications-down" type="button" aria-label="One fewer application">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+            </button>
+            <output id="applications-output" for="applications-down applications-up">
+              <strong>6</strong><span>applications</span>
+            </output>
+            <button class="stepper-button" id="applications-up" type="button" aria-label="One more application">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
             </button>
           </div>
+        </section>
 
-          <div class="field saved-search-field">
-            <label for="saved-search">Search by CID</label>
+        <section class="box box-area" aria-labelledby="details-heading">
+          <h3 class="box-head" id="details-heading">
+            <span class="box-no" aria-hidden="true">3</span>
+            <label for="area-select">Treatment area</label>
+          </h3>
+          <div class="select-wrap">
+            <select class="select" id="area-select">
+              <option value="Entire Lot">Entire lot</option>
+              <option value="Front and Sides">Front and sides</option>
+              <option value="Backyard Only">Backyard</option>
+            </select>
+          </div>
+          <p class="box-help">Notes only, not price</p>
+        </section>
+
+        <section class="box box-promo" id="promotion-fieldset" aria-labelledby="promotion-heading">
+          <h3 class="box-head" id="promotion-heading">
+            <span class="box-no" aria-hidden="true">4</span>
+            <label for="promotion-select">Promotion</label>
+          </h3>
+          <div class="select-wrap">
+            <select class="select" id="promotion-select" aria-describedby="promotion-help prepay-promotion-note">
+              <option value="NONE">None</option>
+              <option value="Military">Military / First Responder 5%</option>
+              <option value="DH50">DH50</option>
+              <option value="WEB50">WEB50</option>
+            </select>
+          </div>
+          <p class="box-help" id="promotion-help">One promotion per quote</p>
+          <p class="void-stamp" id="prepay-promotion-note" hidden>Removed by prepay</p>
+        </section>
+
+        <section class="box box-programs" aria-labelledby="program-heading">
+          <h3 class="box-head" id="program-heading">
+            <span class="box-no" aria-hidden="true">5</span>
+            Program
+            <span class="box-head-note">Season total</span>
+          </h3>
+          <div class="program-rail">
+            <span class="program-highlight" aria-hidden="true"></span>
+            <ul class="program-list" id="program-list"></ul>
+          </div>
+        </section>
+
+        <section class="box box-payment" aria-labelledby="payment-heading">
+          <h3 class="box-head" id="payment-heading">
+            <span class="box-no" aria-hidden="true">6</span>
+            Payment
+          </h3>
+          <div class="payment-options" id="payment-options" role="group" aria-labelledby="payment-heading">
+            <button class="payment-option" type="button" data-payment="autopay_visit" aria-pressed="true">
+              <strong>Autopay per visit</strong>
+              <span>Charged after each service</span>
+            </button>
+            <button class="payment-option" type="button" data-payment="monthly_installment" aria-pressed="false">
+              <strong>Monthly autopay</strong>
+              <span>Even payments through December</span>
+            </button>
+            <button class="payment-option" type="button" data-payment="prepay" aria-pressed="false">
+              <strong>Prepay</strong>
+              <span id="prepay-option-hint">Free Lime Prepay Bonus</span>
+            </button>
+          </div>
+          <div class="draft-day" id="draft-day-panel" hidden>
+            <label for="draft-day-select">Draft day</label>
+            <div class="select-wrap">
+              <select class="select" id="draft-day-select">
+                <option value="1">1st</option><option value="2">2nd</option>
+                <option value="3">3rd</option><option value="4">4th</option>
+                <option value="5">5th</option><option value="6">6th</option>
+                <option value="7">7th</option><option value="8">8th</option>
+                <option value="9">9th</option><option value="10">10th</option>
+                <option value="11">11th</option><option value="12">12th</option>
+                <option value="13">13th</option><option value="14">14th</option>
+                <option value="15">15th</option><option value="16">16th</option>
+                <option value="17">17th</option><option value="18">18th</option>
+                <option value="19">19th</option><option value="20">20th</option>
+                <option value="21">21st</option><option value="22">22nd</option>
+                <option value="23">23rd</option><option value="24">24th</option>
+                <option value="25">25th</option><option value="26">26th</option>
+                <option value="27">27th</option><option value="28">28th</option>
+              </select>
+            </div>
+          </div>
+        </section>
+      </form>
+
+      <aside class="due" aria-labelledby="summary-heading">
+        <div class="due-head">
+          <div>
+            <h2 id="summary-heading">Essentials</h2>
+            <p id="summary-area">Entire lot</p>
+          </div>
+          <span class="due-tier" id="summary-tier">No lawn size yet</span>
+        </div>
+
+        <div class="due-amount">
+          <p class="due-label">Amount due this season</p>
+          <p class="due-total is-empty" id="summary-total">$0.00</p>
+          <dl class="due-facts">
+            <div><dt>Per application</dt><dd id="summary-regular">—</dd></div>
+            <div><dt>Visits</dt><dd id="summary-visits">—</dd></div>
+          </dl>
+        </div>
+
+        <div class="due-body">
+          <p class="due-empty" id="summary-error" role="status">
+            Enter a lawn size in box 1 to price this quote.
+          </p>
+
+          <div class="due-section" id="breakdown-panel" hidden>
+            <h3>Itemized</h3>
+            <ul class="line-items" id="breakdown-list"></ul>
+            <p class="line-total">
+              <span>Season total</span>
+              <strong id="breakdown-total">$0.00</strong>
+            </p>
+          </div>
+
+          <div class="due-section" id="payment-summary" hidden>
+            <h3>Payment schedule</h3>
+            <p id="payment-summary-text"></p>
+            <details class="schedule">
+              <summary>Show each payment</summary>
+              <ul class="line-items" id="payment-schedule-list"></ul>
+            </details>
+          </div>
+
+          <div class="due-section" id="notes-panel" hidden>
+            <h3>Notes line</h3>
+            <p class="note-line" id="quote-note"></p>
+          </div>
+        </div>
+
+        <div class="due-actions">
+          <button class="solid-button copy-main" id="copy-customer-button" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+            </svg>
+            Copy customer quote
+          </button>
+          <div class="due-actions-row">
+            <button class="outline-button" id="copy-notes-button" type="button" disabled>Copy notes</button>
+            <button class="outline-button" id="save-quote-button" type="button" disabled>Save quote</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="box saved" aria-labelledby="saved-heading">
+        <div class="saved-head">
+          <h2 class="box-head" id="saved-heading">
+            <span class="box-no" aria-hidden="true">7</span>
+            Saved quotes
+            <span class="box-head-note">Stored in this browser only</span>
+          </h2>
+          <div class="saved-tools">
+            <label class="sr-only" for="saved-search">Search saved quotes by CID</label>
             <input
               id="saved-search"
               class="text-input"
               type="search"
               autocomplete="off"
-              placeholder="Enter a customer ID"
+              placeholder="Search by CID"
             >
-          </div>
-          <p class="empty-state" id="saved-empty">No saved quotes yet.</p>
-          <ul class="saved-list" id="saved-list"></ul>
-        </section>
-      </section>
-
-      <aside class="summary-column" aria-labelledby="summary-heading">
-        <div class="summary-card">
-          <div class="summary-top">
-            <div>
-              <p class="eyebrow eyebrow-light">Current quote</p>
-              <h2 id="summary-heading">Essentials</h2>
-              <p id="summary-area">Entire lot</p>
-            </div>
-            <span class="summary-tier" id="summary-tier">Enter square footage</span>
-          </div>
-
-          <div class="hero-total">
-            <span>Total season cost</span>
-            <strong class="is-empty" id="summary-total">Not priced</strong>
-          </div>
-
-          <div class="summary-metrics">
-            <div>
-              <span>Regular App</span>
-              <strong id="summary-regular">Not priced</strong>
-            </div>
-            <div>
-              <span>Visits</span>
-              <strong id="summary-visits">Not priced</strong>
-            </div>
-          </div>
-
-          <p class="summary-error" id="summary-error" role="status">
-            Enter a valid square footage to generate pricing.
-          </p>
-
-          <div class="breakdown" id="breakdown-panel" hidden>
-            <h3>Breakdown</h3>
-            <ul id="breakdown-list"></ul>
-            <div class="breakdown-total">
-              <span>Total season cost</span>
-              <strong id="breakdown-total">Not priced</strong>
-            </div>
-          </div>
-
-          <div class="payment-summary" id="payment-summary" hidden>
-            <h3>Payment schedule</h3>
-            <p id="payment-summary-text"></p>
-            <details>
-              <summary>View exact payments</summary>
-              <ul id="payment-schedule-list"></ul>
-            </details>
-          </div>
-
-          <div class="notes-panel" id="notes-panel" hidden>
-            <h3>Quote notes</h3>
-            <p id="quote-note"></p>
-          </div>
-
-          <div class="summary-actions">
-            <button
-              class="button button-primary"
-              id="copy-customer-button"
-              type="button"
-              disabled
-            >
-              Copy customer quote
-            </button>
-            <div class="secondary-actions">
-              <button
-                class="button button-secondary"
-                id="copy-notes-button"
-                type="button"
-                disabled
-              >
-                Copy notes
-              </button>
-              <button
-                class="button button-secondary"
-                id="save-quote-button"
-                type="button"
-                disabled
-              >
-                Save quote
-              </button>
-            </div>
+            <button class="ghost-button danger" id="clear-saved-button" type="button">Delete all</button>
           </div>
         </div>
-      </aside>
+        <p class="saved-empty" id="saved-empty">No saved quotes yet. Save one from the Amount Due panel.</p>
+        <ul class="saved-list" id="saved-list"></ul>
+      </section>
     </main>
 
     <dialog class="save-dialog" id="save-dialog" aria-labelledby="save-dialog-title">
       <form id="save-form">
-        <div class="dialog-heading">
-          <div>
-            <p class="eyebrow">Save locally</p>
-            <h2 id="save-dialog-title">Save this quote</h2>
-          </div>
-          <button
-            class="icon-button"
-            id="close-dialog-button"
-            type="button"
-            aria-label="Close save quote dialog"
-          >
-            ×
+        <div class="dialog-head">
+          <h2 id="save-dialog-title">Save this quote</h2>
+          <button class="icon-button" id="close-dialog-button" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </div>
-
-        <div class="field">
-          <label for="customer-id">Customer ID (CID)</label>
-          <input
-            class="text-input cid-input"
-            id="customer-id"
-            name="customerId"
-            type="text"
-            autocomplete="off"
-            maxlength="24"
-            required
-            placeholder="Enter the CID"
-          >
-          <p class="field-help">Use this CID to find the quote later.</p>
-        </div>
-
+        <label class="field-label" for="customer-id">Customer ID (CID)</label>
+        <input
+          class="text-input"
+          id="customer-id"
+          name="customerId"
+          type="text"
+          autocomplete="off"
+          maxlength="24"
+          required
+          placeholder="Enter the CID"
+        >
+        <p class="box-help">Search by this CID to reload the quote later.</p>
         <div class="dialog-quote">
           <span id="dialog-quote-note"></span>
           <strong id="dialog-quote-total"></strong>
         </div>
-
         <div class="dialog-actions">
-          <button class="button button-secondary" id="cancel-save-button" type="button">
-            Cancel
-          </button>
-          <button class="button button-primary" type="submit">Save quote</button>
+          <button class="outline-button" id="cancel-save-button" type="button">Cancel</button>
+          <button class="solid-button" type="submit">Save quote</button>
         </div>
       </form>
     </dialog>

@@ -1,4 +1,4 @@
-const CACHE_NAME = "wm-quote-2026.07.28.3";
+const CACHE_NAME = "wm-quote-2026.09.30.1";
 const CORE_FILES = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const CORE_FILES = [
   "./pricing.js",
   "./quote-engine.js",
   "./app.js",
+  "./fonts/bricolage-grotesque-latin.woff2",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",

@@ -44,12 +44,12 @@
     paymentOptions: document.querySelector("#payment-options"),
     prepayOptionHint: document.querySelector("#prepay-option-hint"),
     draftDayPanel: document.querySelector("#draft-day-panel"),
-    draftDayDown: document.querySelector("#draft-day-down"),
-    draftDayUp: document.querySelector("#draft-day-up"),
-    draftDayInput: document.querySelector("#draft-day-input"),
-    areaOptions: document.querySelector("#area-options"),
+    draftDaySelect: document.querySelector("#draft-day-select"),
+    areaSelect: document.querySelector("#area-select"),
     promotionFieldset: document.querySelector("#promotion-fieldset"),
-    promotionOptions: document.querySelector("#promotion-options"),
+    promotionSelect: document.querySelector("#promotion-select"),
+    themeToggle: document.querySelector("#theme-toggle"),
+    programHighlight: document.querySelector(".program-highlight"),
     prepayPromotionNote: document.querySelector("#prepay-promotion-note"),
     summaryHeading: document.querySelector("#summary-heading"),
     summaryArea: document.querySelector("#summary-area"),
@@ -175,10 +175,7 @@
     elements.applicationsDown.disabled = state.applications <= 1;
     elements.applicationsUp.disabled = state.applications >= 7;
 
-    elements.draftDayInput.value = String(state.draftDay);
-    elements.draftDayInput.setAttribute("aria-invalid", "false");
-    elements.draftDayDown.disabled = state.draftDay <= 1;
-    elements.draftDayUp.disabled = state.draftDay >= 28;
+    elements.draftDaySelect.value = String(state.draftDay);
     elements.draftDayPanel.hidden =
       state.payment !== "monthly_installment";
 
@@ -193,21 +190,13 @@
       "payment",
       state.payment,
     );
-    setPressedButtons(
-      elements.areaOptions,
-      "[data-area]",
-      "area",
-      state.area,
-    );
-    setPressedButtons(
-      elements.promotionOptions,
-      "[data-promotion]",
-      "promotion",
-      state.promotion,
-    );
+    elements.areaSelect.value = state.area;
+    elements.promotionSelect.value = state.promotion;
 
+    // Prepay voids the promotion box in place instead of hiding it.
     const prepaySelected = state.payment === "prepay";
-    elements.promotionFieldset.hidden = prepaySelected;
+    elements.promotionSelect.disabled = prepaySelected;
+    elements.promotionFieldset.classList.toggle("is-void", prepaySelected);
     elements.prepayPromotionNote.hidden = !prepaySelected;
 
     renderPrograms();
@@ -223,25 +212,21 @@
     elements.saveQuoteButton.disabled = !currentQuote;
 
     if (!currentQuote) {
-      elements.summaryTier.textContent = "Enter square footage";
-      elements.summaryTotal.textContent = "Not priced";
-      elements.summaryRegular.textContent = "Not priced";
-      elements.summaryVisits.textContent = "Not priced";
+      elements.summaryTier.textContent = "No lawn size yet";
+      setRolling(elements.summaryTotal, engine.formatMoney(0));
+      elements.summaryRegular.textContent = "—";
+      elements.summaryVisits.textContent = "—";
       elements.paymentSummary.hidden = true;
       return;
     }
 
     elements.summaryTier.textContent = currentQuote.rates.tier;
-    elements.summaryTotal.textContent = engine.formatMoney(
-      currentQuote.totalCents,
-    );
+    setRolling(elements.summaryTotal, engine.formatMoney(currentQuote.totalCents));
     elements.summaryRegular.textContent = engine.formatMoney(
       currentQuote.rates.regularCents,
     );
     elements.summaryVisits.textContent = String(currentQuote.visits);
-    elements.breakdownTotal.textContent = engine.formatMoney(
-      currentQuote.totalCents,
-    );
+    setRolling(elements.breakdownTotal, engine.formatMoney(currentQuote.totalCents));
     renderBreakdown(currentQuote);
     renderPaymentSchedule(currentQuote);
     elements.quoteNote.textContent = engine.createInternalNote(
@@ -260,55 +245,115 @@
   }
 
   function renderPrograms() {
-    const fragment = document.createDocumentFragment();
+    const existing = elements.programList.children;
+    if (existing.length !== pricing.programs.length) {
+      elements.programList.replaceChildren(
+        ...pricing.programs.map((program) => {
+          const item = document.createElement("li");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "program-line";
+          button.dataset.program = program.key;
 
-    pricing.programs.forEach((program) => {
+          const name = document.createElement("span");
+          name.className = "program-name";
+          name.textContent = program.name;
+          const extra = document.createElement("span");
+          extra.className = "program-extra";
+          extra.textContent = program.extra;
+          const price = document.createElement("span");
+          price.className = "program-price";
+
+          button.append(name, extra, price);
+          item.append(button);
+          return item;
+        }),
+      );
+    }
+
+    let selectedButton = null;
+    pricing.programs.forEach((program, index) => {
+      const button = existing[index].firstElementChild;
       const quote = engine.calculateQuote(quoteOptions(program.key));
       const selected = state.program === program.key;
-      const row = document.createElement("tr");
-      if (selected) {
-        row.className = "selected";
-      }
-
-      const programCell = document.createElement("td");
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "program-select";
-      button.dataset.program = program.key;
+      const price = quote ? engine.formatMoney(quote.totalCents) : "—";
       button.setAttribute("aria-pressed", String(selected));
-      button.setAttribute("aria-label", `Select ${program.name} program`);
-
-      const dot = document.createElement("span");
-      dot.className = "selection-dot";
-      dot.setAttribute("aria-hidden", "true");
-      const label = document.createElement("span");
-      const name = document.createElement("span");
-      name.className = "program-name";
-      name.textContent = program.name;
-      const extra = document.createElement("span");
-      extra.className = "program-extra";
-      extra.textContent = program.extra;
-      label.append(name, extra);
-      button.append(dot, label);
-      programCell.append(button);
-
-      const regularCell = document.createElement("td");
-      regularCell.className = "program-price";
-      regularCell.textContent = quote
-        ? engine.formatMoney(quote.rates.regularCents)
-        : "Not priced";
-
-      const totalCell = document.createElement("td");
-      totalCell.className = "program-price";
-      totalCell.textContent = quote
-        ? engine.formatMoney(quote.totalCents)
-        : "Not priced";
-
-      row.append(programCell, regularCell, totalCell);
-      fragment.append(row);
+      button.setAttribute(
+        "aria-label",
+        `${program.name}, ${program.extra}, ${quote ? price : "not priced"}`,
+      );
+      setRolling(button.querySelector(".program-price"), price);
+      if (selected) selectedButton = button;
     });
 
-    elements.programList.replaceChildren(fragment);
+    moveProgramHighlight(selectedButton);
+  }
+
+  // The highlight is one element that slides between program lines.
+  function moveProgramHighlight(button) {
+    const highlight = elements.programHighlight;
+    if (!button) {
+      highlight.style.opacity = "0";
+      return;
+    }
+    highlight.style.opacity = "1";
+    highlight.style.height = `${button.offsetHeight}px`;
+    highlight.style.transform = `translateY(${button.parentElement.offsetTop}px)`;
+  }
+
+  // Odometer digits: each digit is a 0-9 strip that rolls to its value.
+  // Screen readers get the plain value from a visually hidden copy.
+  function setRolling(element, text) {
+    if (element.dataset.value === text) return;
+    const previous = element.dataset.value || "";
+    element.dataset.value = text;
+
+    const sameShape =
+      previous.length === text.length &&
+      [...previous].every((char, index) =>
+        /\d/.test(char) === /\d/.test(text[index]) &&
+        (/\d/.test(char) || char === text[index]),
+      );
+
+    if (!sameShape || !element.querySelector(".roll")) {
+      const spoken = document.createElement("span");
+      spoken.className = "sr-only";
+      element.replaceChildren(
+        spoken,
+        ...[...text].map((char) => {
+          if (!/\d/.test(char)) {
+            const plain = document.createElement("span");
+            plain.className = "roll-char";
+            plain.setAttribute("aria-hidden", "true");
+            plain.textContent = char;
+            return plain;
+          }
+          const column = document.createElement("span");
+          column.className = "roll";
+          column.setAttribute("aria-hidden", "true");
+          const strip = document.createElement("span");
+          strip.className = "roll-strip";
+          for (let digit = 0; digit <= 9; digit += 1) {
+            const cell = document.createElement("span");
+            cell.textContent = String(digit);
+            strip.append(cell);
+          }
+          column.append(strip);
+          return column;
+        }),
+      );
+      // Start from zero so a fresh number still rolls in.
+      element.getBoundingClientRect();
+    }
+
+    element.querySelector(".sr-only").textContent = text;
+
+    let digitIndex = 0;
+    const digits = [...text].filter((char) => /\d/.test(char));
+    element.querySelectorAll(".roll-strip").forEach((strip) => {
+      strip.style.transform = `translateY(-${Number(digits[digitIndex]) * 10}%)`;
+      digitIndex += 1;
+    });
   }
 
   function renderBreakdown(quote) {
@@ -373,8 +418,8 @@
     elements.savedEmpty.hidden = filtered.length > 0;
     elements.savedEmpty.textContent =
       savedQuotes.length === 0
-        ? "No saved quotes yet."
-        : "No saved quote matches that CID.";
+        ? "No saved quotes yet. Save one from the Amount Due panel."
+        : "No saved quote has that CID.";
     elements.clearSavedButton.hidden = savedQuotes.length === 0;
 
     const fragment = document.createDocumentFragment();
@@ -618,7 +663,7 @@
     Object.assign(state, DEFAULT_STATE);
     render();
     elements.squareFeet.focus();
-    showToast("Quote reset.");
+    showToast("New quote started.");
   }
 
   function updatePricingStatus() {
@@ -731,29 +776,8 @@
   elements.applicationsUp.addEventListener("click", () => {
     setState({ applications: Math.min(7, state.applications + 1) });
   });
-  elements.draftDayDown.addEventListener("click", () => {
-    setState({ draftDay: Math.max(1, state.draftDay - 1) });
-  });
-  elements.draftDayUp.addEventListener("click", () => {
-    setState({ draftDay: Math.min(28, state.draftDay + 1) });
-  });
-  elements.draftDayInput.addEventListener("input", (event) => {
-    const value = Number(event.target.value);
-    const valid =
-      Number.isInteger(value) && value >= 1 && value <= 28;
-    event.target.setAttribute("aria-invalid", String(!valid));
-    if (valid) {
-      setState({ draftDay: value });
-    }
-  });
-  elements.draftDayInput.addEventListener("change", (event) => {
-    const value = Number.parseInt(event.target.value, 10);
-    if (!Number.isFinite(value)) {
-      event.target.value = String(state.draftDay);
-      event.target.setAttribute("aria-invalid", "false");
-      return;
-    }
-    setState({ draftDay: Math.min(28, Math.max(1, value)) });
+  elements.draftDaySelect.addEventListener("change", (event) => {
+    setState({ draftDay: Number(event.target.value) });
   });
 
   elements.programList.addEventListener("click", (event) => {
@@ -762,6 +786,14 @@
       setState({ program: button.dataset.program });
     }
   });
+
+  // Line heights change with the window width and once the font loads.
+  const placeHighlight = () =>
+    moveProgramHighlight(
+      elements.programList.querySelector('[aria-pressed="true"]'),
+    );
+  window.addEventListener("resize", placeHighlight);
+  document.fonts?.ready.then(placeHighlight);
 
   elements.paymentOptions.addEventListener("click", (event) => {
     const button = event.target.closest("[data-payment]");
@@ -773,19 +805,41 @@
     });
   });
 
-  elements.areaOptions.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-area]");
-    if (button) {
-      setState({ area: button.dataset.area });
+  elements.areaSelect.addEventListener("change", (event) => {
+    setState({ area: event.target.value });
+  });
+
+  elements.promotionSelect.addEventListener("change", (event) => {
+    if (state.payment !== "prepay") {
+      setState({ promotion: event.target.value });
     }
   });
 
-  elements.promotionOptions.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-promotion]");
-    if (button && state.payment !== "prepay") {
-      setState({ promotion: button.dataset.promotion });
+  // Theme: follows the device until the rep picks one, then remembers it.
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function currentTheme() {
+    return document.documentElement.dataset.theme ||
+      (darkQuery.matches ? "dark" : "light");
+  }
+
+  function renderThemeToggle() {
+    const next = currentTheme() === "dark" ? "light" : "dark";
+    elements.themeToggle.setAttribute("aria-label", `Switch to ${next} mode`);
+    elements.themeToggle.title = `Switch to ${next} mode`;
+  }
+
+  elements.themeToggle.addEventListener("click", () => {
+    const theme = currentTheme() === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("wm-quote-theme", theme);
+    } catch (error) {
+      // The toggle still works for this visit.
     }
+    renderThemeToggle();
   });
+  darkQuery.addEventListener("change", renderThemeToggle);
 
   elements.copyCustomerButton.addEventListener("click", () => {
     copyText(
@@ -830,6 +884,7 @@
   elements.refreshButton.addEventListener("click", refreshForUpdate);
 
   updatePricingStatus();
+  renderThemeToggle();
   render();
   renderSavedQuotes();
   registerServiceWorker();
