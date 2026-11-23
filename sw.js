@@ -1,4 +1,4 @@
-const CACHE_NAME = "wm-quote-2026.09.30.1";
+const CACHE_NAME = "wm-quote-2026.11.23.1";
 const CORE_FILES = [
   "./",
   "./index.html",

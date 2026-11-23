@@ -34,7 +34,7 @@ test("8,100 square feet uses the correct price tier", () => {
   assert.equal(rates.aerationCents, engine.toCents(tier[3]));
   assert.equal(rates.overseedingCents, engine.toCents(tier[3]));
 
-  if (pricing.year === 2026) {
+  if (pricing.year === 2027) {
     assert.deepEqual(
       [
         rates.regularCents,
@@ -42,7 +42,7 @@ test("8,100 square feet uses the correct price tier", () => {
         rates.aerationCents,
         rates.overseedingCents,
       ],
-      [7610, 14190, 18155, 18155],
+      [8100, 15000, 19000, 19000],
     );
   }
 });
@@ -106,7 +106,7 @@ test("large lawn formulas return the confirmed 156,000 sq ft prices", () => {
   assert.equal(rates.overseedingCents, expectedAeration);
   assert.equal(rates.extrapolated, true);
 
-  if (pricing.year === 2026) {
+  if (pricing.year === 2027) {
     assert.deepEqual(
       [
         rates.regularCents,
@@ -114,7 +114,7 @@ test("large lawn formulas return the confirmed 156,000 sq ft prices", () => {
         rates.aerationCents,
         rates.overseedingCents,
       ],
-      [87581, 139026, 336258, 336258],
+      [90051, 138801, 338603, 338603],
     );
   }
 });

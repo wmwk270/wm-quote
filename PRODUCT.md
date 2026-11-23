@@ -70,7 +70,7 @@ app icon files.
 
 ## Evidence on Hand
 
-- Real 2026 rate table and program definitions in `pricing.js`.
+- Real 2027 rate table and program definitions in `pricing.js`.
 - Sample schedule exports in the local, git-ignored `Test CSVs/` folder.
 - No customer data, testimonials, or usage metrics exist; do not invent any.
 
