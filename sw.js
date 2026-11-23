@@ -1,4 +1,4 @@
-const CACHE_NAME = "wm-quote-2026.11.23.1";
+const CACHE_NAME = "wm-quote-2026.11.23.2";
 const CORE_FILES = [
   "./",
   "./index.html",
@@ -16,7 +16,12 @@ const CORE_FILES = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES)),
+    // "reload" skips the browser's HTTP cache, which GitHub Pages keeps for 10 minutes.
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        cache.addAll(CORE_FILES.map((url) => new Request(url, { cache: "reload" }))),
+      ),
   );
 });
 
@@ -54,7 +59,8 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    fetch(request)
+    // "no-cache" revalidates with the server so a deploy is never hidden by a stale HTTP copy.
+    fetch(request, { cache: "no-cache" })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();
