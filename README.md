@@ -56,7 +56,9 @@ overseeding.
 
 The final price in each CSV automatically becomes the base for that service's
 large-lawn formula. If a per-1,000 amount is left out of the config, its
-current value is kept and reported in the import summary. The January 31
+current value is kept and reported in the import summary. The schedule exports
+do not include the per-1,000 amounts, so confirm them with the pricing team
+each year. The January 31
 Prepay cutoff also advances automatically to the imported pricing year.
 
 The importer also sets a new release identifier and updates the offline cache,
@@ -72,7 +74,16 @@ npm run release -- 2026.08.01.1
 ```
 
 The command updates the app version and offline cache together. Reps with an
-older version will see a refresh prompt after the new release is deployed.
+older version will see a refresh prompt after the new release is deployed;
+one tap on **Refresh now** loads it.
+
+GitHub Pages rebuilds from `main` on every push. Tag each release as
+`v<release>` (for example `v2026.11.23.2`). After a deploy, confirm the live
+`version.json` shows the new release, then open the app and run a quote.
+
+The offline cache always revalidates files with the server, because GitHub
+Pages lets browsers reuse files for 10 minutes and an unrevalidated copy
+would keep old prices after a deploy.
 
 ## Saved quotes
 
